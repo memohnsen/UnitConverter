@@ -8,14 +8,78 @@
 import SwiftUI
 
 struct ContentView: View {
-    var body: some View {
-        VStack {
-            Image(systemName: "globe")
-                .imageScale(.large)
-                .foregroundStyle(.tint)
-            Text("Hello, world!")
+    enum Units: String, CaseIterable, Identifiable {
+        case KG, LB, G, OZ, ST
+        var id: Self { self }
+        
+        var displayName: String {
+            switch self {
+            case .KG: return "kilograms"
+            case .LB: return "pounds"
+            case .G:  return "grams"
+            case .OZ: return "ounces"
+            case .ST: return "stones"
+            }
         }
-        .padding()
+    }
+    
+    @State private var originalUnit: Units = .KG
+    @State private var newUnit: Units = .LB
+    @State private var weight: Double = 100.0
+    
+    var newWeight: Double {
+        let weightInKG: Double = {
+            switch originalUnit {
+            case .KG: return weight
+            case .LB: return weight / 2.20462262
+            case .G:  return weight / 1000.0
+            case .OZ: return weight / 35.2739619
+            case .ST: return weight / 0.157473044
+            }
+        }()
+        switch newUnit {
+        case .KG: return weightInKG
+        case .LB: return weightInKG * 2.20462262
+        case .G:  return weightInKG * 1000.0
+        case .OZ: return weightInKG * 35.2739619
+        case .ST: return weightInKG * 0.157473044
+        }
+    }
+    
+    var oldWeightFormatter: String {String(format: "%.2f", weight)}
+    var newWeightFormatter: String {String(format: "%.2f", newWeight)}
+    
+    var body: some View {
+        NavigationStack {
+            Form{
+                Section{
+                    Picker("Original Unit", selection: $originalUnit) {
+                        Text("Kilograms").tag(Units.KG)
+                        Text("Pounds").tag(Units.LB)
+                        Text("Grams").tag(Units.G)
+                        Text("Ounces").tag(Units.OZ)
+                        Text("Stones").tag(Units.ST)
+                    }
+                    
+                    Picker("New Unit", selection: $newUnit) {
+                        Text("Kilograms").tag(Units.KG)
+                        Text("Pounds").tag(Units.LB)
+                        Text("Grams").tag(Units.G)
+                        Text("Ounces").tag(Units.OZ)
+                        Text("Stones").tag(Units.ST)
+                    }
+                }
+                
+                Section("What is the current weight?") {
+                    TextField("What is the current weight?", value: $weight, format: .number)
+                }
+                
+                Section {
+                    Text("\(oldWeightFormatter) \(originalUnit.displayName) is equal to \(newWeightFormatter) \(newUnit.displayName)")
+                }
+            }
+            .navigationTitle("Unit Convertor")
+        }
     }
 }
 
