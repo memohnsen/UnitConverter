@@ -26,6 +26,7 @@ struct ContentView: View {
     @State private var originalUnit: Units = .KG
     @State private var newUnit: Units = .LB
     @State private var weight: Double = 100.0
+    @FocusState private var isFocused: Bool
     
     var newWeight: Double {
         let weightInKG: Double = {
@@ -73,12 +74,21 @@ struct ContentView: View {
                 Section("What is the current weight?") {
                     TextField("What is the current weight?", value: $weight, format: .number)
                 }
+                .keyboardType(.decimalPad)
+                .focused($isFocused)
                 
                 Section {
                     Text("\(oldWeightFormatter) \(originalUnit.displayName) is equal to \(newWeightFormatter) \(newUnit.displayName)")
                 }
             }
             .navigationTitle("Unit Convertor")
+            .toolbar{
+                if isFocused {
+                    Button("Done") {
+                        isFocused = false
+                    }
+                }
+            }
         }
     }
 }
